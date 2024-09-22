@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import styled from "styled-components";
+import GuideModal from "./GuideModal";
 
 const Table = styled.table`
   width: 100%;
@@ -84,6 +85,7 @@ const CompanyInfoPage = () => {
     <div>
       <Link to="/">돌아가기</Link>
       <h1>{selectedCompany} 기준, 역세권별 자취 기회비용</h1>
+      <GuideModal />
       <Table>
         <thead>
           <tr>
@@ -101,7 +103,7 @@ const CompanyInfoPage = () => {
               {getSortIndicator("commuteCost")}
             </Th>
             <Th onClick={() => sortData("commuteTime")}>
-              출퇴근 시간/일 {getSortIndicator("commuteTime")}
+              출퇴근 편도 시간/일 {getSortIndicator("commuteTime")}
             </Th>
           </tr>
         </thead>

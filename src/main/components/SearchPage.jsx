@@ -1,18 +1,37 @@
 import React, { useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const SearchPage = () => {
-  const [selectedCompany, setSelectedCompany] = useState("");
   const navigate = useNavigate();
 
-  const companies = ["Apple", "현대오토에버", "카카오모빌리티", "숭실대학교" ,"Microsoft", "Amazon", "Facebook"];
+  const companies = [
+    "네이버",
+    "카카오모빌리티",
+    "라인",
+    "쿠팡",
+    "배달의민족",
+    "숭실대학교",
+    "서울대학교",
+    "연세대학교",
+    "고려대학교",
+  ];
 
-  const handleSelection = async (event) => {
-    const company = event.target.value;
+  const [selectedCompany, setSelectedCompany] = useState("");
+
+  const handleCompanySelection = (event) => {
+    setSelectedCompany(event.target.value);
+  };
+
+  const handleWorkingDaysSelection = async (event) => {
+    const workDays = event.target.value;
     const apiUrl = process.env.REACT_APP_API_ENDPOINT;
-    const response = await fetch(`${apiUrl}/opportunity?companyName=${company}`);
+    const response = await fetch(
+      `${apiUrl}/opportunity?company=${selectedCompany}&workdays=${workDays}`
+    );
     const data = await response.json();
-    navigate("/company-info", { state: { detail: data, selectedCompany: company } });
+    navigate("/company-info", {
+      state: { detail: data, selectedCompany: selectedCompany, selectedWorkingDays: workDays },
+    });
   };
 
   return (
@@ -21,13 +40,12 @@ const SearchPage = () => {
         어디서 자취할까?
       </h1>
       <select
-        value={selectedCompany}
-        onChange={handleSelection}
+        onChange={handleCompanySelection}
         style={{
           width: "550px",
           height: "40px",
           fontSize: "16px",
-          borderRadius: "15px", // Slightly rounded corners, more square-like
+          borderRadius: "15px",
           padding: "5px 10px",
         }}
       >
@@ -38,6 +56,28 @@ const SearchPage = () => {
           </option>
         ))}
       </select>
+
+      {selectedCompany && (
+        <div style={{ marginTop: "20px" }}>
+          <select
+            onChange={handleWorkingDaysSelection}
+            style={{
+              width: "550px",
+              height: "40px",
+              fontSize: "16px",
+              borderRadius: "15px",
+              padding: "5px 10px",
+            }}
+          >
+            <option value="">근무일수 또는 수업일수를 선택해주세요</option>
+            {[...Array(8).keys()].map((day) => (
+              <option key={day} value={day}>
+                {day}일
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
     </div>
   );
 };
