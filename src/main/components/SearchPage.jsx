@@ -5,14 +5,14 @@ const SearchPage = () => {
   const [selectedCompany, setSelectedCompany] = useState("");
   const navigate = useNavigate();
 
-  const companies = ["Apple", "Google", "Microsoft", "Amazon", "Facebook"];
+  const companies = ["Apple", "현대오토에버", "카카오모빌리티", "숭실대학교" ,"Microsoft", "Amazon", "Facebook"];
 
   const handleSelection = async (event) => {
     const company = event.target.value;
     const apiUrl = process.env.REACT_APP_API_ENDPOINT;
-    const response = await fetch(`${apiUrl}/?company=${company}`);
+    const response = await fetch(`${apiUrl}/opportunity?companyName=${company}`);
     const data = await response.json();
-    navigate("/company-info", { state: { detail: data } });
+    navigate("/company-info", { state: { detail: data, selectedCompany: company } });
   };
 
   return (

@@ -38,10 +38,14 @@ const CompanyInfoPage = () => {
   const location = useLocation();
   const [data, setData] = useState([]);
   const [sortConfig, setSortConfig] = useState(null);
+  const [selectedCompany, setSelectedCompany] = useState("");
 
   useEffect(() => {
     if (location.state?.detail) {
       setData(location.state.detail);
+    }
+    if (location.state?.selectedCompany) {
+      setSelectedCompany(location.state.selectedCompany);
     }
   }, [location]);
 
@@ -79,36 +83,36 @@ const CompanyInfoPage = () => {
   return (
     <div>
       <Link to="/">돌아가기</Link>
-      <h1>지하철역별 자취 기회비용</h1>
+      <h1>{selectedCompany} 기준, 역세권별 자취 기회비용</h1>
       <Table>
         <thead>
           <tr>
-            <Th onClick={() => sortData("montlyTotalOpportunity")}>
-              총 비용/월 {getSortIndicator("montlyTotalOpportunity")}
+            <Th onClick={() => sortData("totalOpportunityCost")}>
+              총 비용/월 {getSortIndicator("totalOpportunityCost")}
             </Th>
-            <Th onClick={() => sortData("name")}>
-              지하철 역명 {getSortIndicator("name")}
+            <Th onClick={() => sortData("stationName")}>
+              지하철 역명 {getSortIndicator("stationName")}
             </Th>
-            <Th onClick={() => sortData("montlyRent")}>
-              월세비용/월 {getSortIndicator("montlyRent")}
+            <Th onClick={() => sortData("rentCost")}>
+              월세비용/월 {getSortIndicator("rentCost")}
             </Th>
-            <Th onClick={() => sortData("montlyGoingOpportunity")}>
+            <Th onClick={() => sortData("commuteCost")}>
               출퇴근 시간 기회비용/월{" "}
-              {getSortIndicator("montlyGoingOpportunity")}
+              {getSortIndicator("commuteCost")}
             </Th>
-            <Th onClick={() => sortData("goingWorkMinute")}>
-              출퇴근 시간 {getSortIndicator("goingWorkMinute")}
+            <Th onClick={() => sortData("commuteTime")}>
+              출퇴근 시간/일 {getSortIndicator("commuteTime")}
             </Th>
           </tr>
         </thead>
         <tbody>
           {data.map((item) => (
-            <Tr key={item.id}>
-              <Td>{item.montlyTotalOpportunity}만원</Td>
-              <Td>{item.name}</Td>
-              <Td>{item.montlyRent}만원</Td>
-              <Td>{item.montlyGoingOpportunity}만원</Td>
-              <Td>{item.goingWorkMinute || "N/A"}</Td>
+            <Tr key={item.stationID}>
+              <Td>{item.totalOpportunityCost}만원</Td>
+              <Td>{item.stationName}</Td>
+              <Td>{item.rentCost}만원</Td>
+              <Td>{item.commuteCost}만원</Td>
+              <Td>{item.commuteTime + "분" || "N/A"}</Td>
             </Tr>
           ))}
         </tbody>
