@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { useLocation } from "react-router-dom";
 
 import { useMap } from "../hooks/useMap";
+import { FaSubway, FaMoneyBillWave, FaClock, FaThumbsUp, FaThumbsDown } from 'react-icons/fa';
 
 const PageLayout = styled.div`
   position: relative;
@@ -16,20 +17,52 @@ const LeftPanel = styled.div`
   top: 0;
   left: 0;
   height: 100%;
-  width: ${({ isOpen }) => (isOpen ? "auto" : "0")};
-  max-width: 50vw;
+  width: ${({ isOpen }) => (isOpen ? "350px" : "0")};
   background: white;
-  overflow-x: scroll;
+  overflow-y: auto;
   transition: width 0.3s ease-out;
   z-index: 5;
-  padding-left: ${({ isOpen }) => (isOpen ? "1vw" : "0")};
-  padding-right: ${({ isOpen }) => (isOpen ? "1vw" : "0")};
-  border-right: 2px solid #ccc;
+  padding: ${({ isOpen }) => (isOpen ? "20px" : "0")};
+  box-shadow: ${({ isOpen }) => (isOpen ? "2px 0 5px rgba(0,0,0,0.1)" : "none")};
 `;
 
 const MapContainer = styled.div`
   width: 100%;
   height: 100%;
+`;
+
+const StationInfoCard = styled.div`
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 20px;
+  background: #fafafa;
+`;
+
+const Section = styled.div`
+  margin-bottom: 20px;
+`;
+
+const SectionTitle = styled.h3`
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #333;
+
+  & > svg {
+    margin-right: 8px;
+    color: #007BFF;
+  }
+`;
+
+const InfoItem = styled.p`
+  margin: 5px 0;
+  font-size: 16px;
+  line-height: 1.4;
+
+  & > strong {
+    color: #555;
+  }
 `;
 
 const AddressMap = () => {
@@ -58,10 +91,6 @@ const AddressMap = () => {
   const [isPanelOpen, setIsPanelOpen] = useState(true);
   const leftPanelRef = useRef();
 
-  const togglePanel = () => {
-    setIsPanelOpen(!isPanelOpen);
-  };
-
   const naver = window.naver;
   const contextMenuHtml = [
     '<div style="padding:10px;min-width:100px;line-height:150%;">',
@@ -83,18 +112,18 @@ const AddressMap = () => {
   }
 
   const markersRef = useRef([]);
-  const [markersAdded, setMarkersAdded] = useState(false);
+  const [selectedStation, setSelectedStation] = useState(null);
 
   useEffect(() => {
-    if (!mapRef.current || markersAdded) return;
+    if (!mapRef.current) return;
+
+    // 기존 마커 제거
+    markersRef.current.forEach((marker) => {
+      marker.setMap(null);
+    });
+    markersRef.current = [];
 
     if (livingOpportunities != null && livingOpportunities.length > 0) {
-      // 기존 마커 제거
-      markersRef.current.forEach((marker) => {
-        marker.setMap(null);
-      });
-      markersRef.current = [];
-
       livingOpportunities.forEach((station) => {
         const position = new naver.maps.LatLng(
           station.latitude,
@@ -115,14 +144,14 @@ const AddressMap = () => {
         const lightness = 90 - boundedIntensity * 60; // 90%에서 30%까지 감소
         const markerColor = `hsl(${hue}, 100%, ${lightness}%)`;
 
-        // 마커 콘텐츠 생성 (글씨 크기 2배로)
+        // 마커 콘텐츠 생성
         const markerContent = `
           <div style="
             background-color: ${markerColor};
             padding: 8px 12px;
             border-radius: 9999px;
             text-align: center;
-            font-size: 15px; /* 글씨 크기 2배로 */
+            font-size: 15px;
             color: white;
             white-space: nowrap;
             font-weight: bold;
@@ -142,6 +171,11 @@ const AddressMap = () => {
           },
         });
 
+        naver.maps.Event.addListener(marker, 'click', () => {
+          setSelectedStation(station);
+          setIsPanelOpen(true);
+        });
+
         markersRef.current.push(marker);
       });
 
@@ -154,16 +188,16 @@ const AddressMap = () => {
 
         const destMarkerContent = `
           <div style="
-            background-color: #66CCCC; /* 보기편한청록 */
+            background-color: #66CCCC;
             padding: 10px 14px;
             border-radius: 9999px;
             text-align: center;
-            font-size: 24px; /* 글씨 크기 2배로 */
+            font-size: 24px;
             color: white;
             white-space: nowrap;
             font-weight: bold;
-            border: 3px solid #FFFFFF; /* 흰색 테두리 */
-            box-shadow: 0 0 10px rgba(0,0,0,0.5); /* 그림자 */
+            border: 3px solid #FFFFFF;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
           ">
             ${destination.name}
           </div>
@@ -176,21 +210,62 @@ const AddressMap = () => {
             content: destMarkerContent,
             anchor: new naver.maps.Point(15, 30),
           },
-          zIndex: 100, // 다른 마커보다 위에 표시되도록
+          zIndex: 100,
         });
 
         markersRef.current.push(destMarker);
       }
-
-      setMarkersAdded(true);
     }
-  }, [mapRef.current, markersAdded, livingOpportunities, destination]);
+  }, [mapRef.current, livingOpportunities, destination]);
 
   return (
     <PageLayout>
       <LeftPanel isOpen={isPanelOpen} ref={leftPanelRef}>
-        {destination && destination.name}
-        {/* 왼쪽 패널 내용 */}
+        {selectedStation ? (
+          <StationInfoCard>
+            <Section>
+              <SectionTitle><FaSubway /> 기본 정보</SectionTitle>
+              <InfoItem>
+                <strong>역명:</strong> {selectedStation.stationName}
+              </InfoItem>
+              <InfoItem>
+                <strong>노선:</strong> {selectedStation.line}
+              </InfoItem>
+            </Section>
+            <Section>
+              <SectionTitle><FaMoneyBillWave /> 비용 정보</SectionTitle>
+              <InfoItem>
+                <strong>평균 월세 비용:</strong> {selectedStation.rentCost}만원
+              </InfoItem>
+              <InfoItem>
+                <strong>회사 통근 기회비용:</strong> {selectedStation.commuteCost}만원
+              </InfoItem>
+              <InfoItem>
+                <strong>실제 거주 기회비용:</strong> {selectedStation.totalOpportunityCost}만원
+              </InfoItem>
+            </Section>
+            <Section>
+              <SectionTitle><FaClock /> 통근 정보</SectionTitle>
+              <InfoItem>
+                <strong>통근 시간:</strong> {selectedStation.commuteTime}분
+              </InfoItem>
+            </Section>
+            <Section>
+              <SectionTitle><FaThumbsUp /> 장점</SectionTitle>
+              <InfoItem>{selectedStation.pros}</InfoItem>
+            </Section>
+            <Section>
+              <SectionTitle><FaThumbsDown /> 단점</SectionTitle>
+              <InfoItem>{selectedStation.cons}</InfoItem>
+            </Section>
+          </StationInfoCard>
+        ) : (
+          destination && (
+            <div style={{ padding: '20px' }}>
+              <h2>{destination.name}</h2>
+            </div>
+          )
+        )}
       </LeftPanel>
 
       <MapContainer>

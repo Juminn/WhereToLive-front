@@ -30,7 +30,7 @@ const SearchPage = () => {
     );
     const data = await response.json();
 
-    navigate("/", {
+    navigate("/addressMap", {
       state: { detail: data, selectedCompany: selectedCompany, selectedWorkingDays: workDays },
     });
 
