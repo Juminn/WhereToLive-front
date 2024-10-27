@@ -29,9 +29,14 @@ const SearchPage = () => {
       `${apiUrl}/opportunity?company=${selectedCompany}&workdays=${workDays}`
     );
     const data = await response.json();
-    navigate("/company-info", {
+
+    navigate("/", {
       state: { detail: data, selectedCompany: selectedCompany, selectedWorkingDays: workDays },
     });
+
+    // navigate("/company-info", {
+    //   state: { detail: data, selectedCompany: selectedCompany, selectedWorkingDays: workDays },
+    // });
   };
 
   return (
