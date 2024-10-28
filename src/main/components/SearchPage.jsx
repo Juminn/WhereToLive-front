@@ -29,7 +29,7 @@ const SearchPage = () => {
 
     if (selectionType === "company" && selectedCompany) {
       const response = await fetch(
-        `${apiUrl}/opportunity?company=${selectedCompany}&workdays=${workDays}`
+        `${apiUrl}/opportunity2?company=${selectedCompany}&workdays=${workDays}`
       );
       const data = await response.json();
 
